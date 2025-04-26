@@ -17,6 +17,11 @@ def send_message(text):
 
 def run_clock_alert():
     print("🕒 Clock test triggered manually...")
+
+    # 🔍 DEBUG: Confirm env vars are pulled correctly
+    print(f"🔍 BOT_TOKEN starts with: {BOT_TOKEN[:10] if BOT_TOKEN else 'None'}")
+    print(f"🔍 CHAT_ID is: {CHAT_ID if CHAT_ID else 'None'}")
+
     now = datetime.now()
     timestamp = now.strftime("%H:%M:%S")
     send_message(f"🟢 [{timestamp}] Clock Alert: Manual test successful!")
