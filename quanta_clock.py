@@ -16,11 +16,7 @@ def send_message(text):
         print(f"❌ Clock Message failed: {e}")
 
 def run_clock_alert():
-    print("⏱️ Clock loop running...")
-    while True:
-        now = datetime.now()
-        if now.minute % 15 == 0 and now.second < 5:
-            timestamp = now.strftime("%H:%M:%S")
-            send_message(f"🕒 [{timestamp}] Clock Alert: New 15-minute candle!")
-            time.sleep(10)
-        time.sleep(1)
+    print("🕒 Clock test triggered manually...")
+    now = datetime.now()
+    timestamp = now.strftime("%H:%M:%S")
+    send_message(f"🟢 [{timestamp}] Clock Alert: Manual test successful!")
