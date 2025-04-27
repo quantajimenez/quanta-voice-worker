@@ -1,26 +1,39 @@
 from flask import Flask
 import threading
 import time
-from quanta_clock import run_clock_alert
+from datetime import datetime
+import requests
+import os
 
 app = Flask(__name__)
 
-# 🕒 Background clock function
-def clock_worker():
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+def send_message(text):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": text}
+    try:
+        response = requests.post(url, json=payload)
+        print(f"✅ Clock Message sent | Status: {response.status_code}")
+    except Exception as e:
+        print(f"❌ Clock Message failed: {e}")
+
+def clock_loop():
+    print("🕒 Clock Loop Started Successfully...")
+    print(f"🔍 BOT_TOKEN starts with: {BOT_TOKEN[:10] if BOT_TOKEN else 'None'}")
+    print(f"🔍 CHAT_ID is: {CHAT_ID if CHAT_ID else 'None'}")
+
     while True:
-        try:
-            run_clock_alert()
-            time.sleep(10)  # 10 seconds between heartbeats
-        except Exception as e:
-            print(f"❌ Error in Clock Worker: {e}")
-            time.sleep(5)
+        now = datetime.now()
+        timestamp = now.strftime("%H:%M:%S")
+        send_message(f"🟢 [{timestamp}] Clock Alert: I'm alive.")
+        time.sleep(10)
 
-# 🚀 Start clock in background
-threading.Thread(target=clock_worker, daemon=True).start()
-
-@app.route('/')
+@app.route("/")
 def home():
-    return '🕒 Quanta Clock Worker is running!'
+    return "🕒 Clock Worker is Running!"
 
 if __name__ == "__main__":
+    threading.Thread(target=clock_loop, daemon=True).start()
     app.run(host="0.0.0.0", port=8080)
