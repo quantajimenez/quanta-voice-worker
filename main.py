@@ -7,32 +7,43 @@ import os
 
 app = Flask(__name__)
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-
 def send_message(text):
+    # Reload env vars every time in case of updates
+    BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+    if not BOT_TOKEN or not CHAT_ID:
+        print("❌ Missing BOT_TOKEN or CHAT_ID.")
+        return
+
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": text}
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": text
+    }
+
     try:
-        response = requests.post(url, json=payload)
-        print(f"🚀 Sending to Telegram: {payload} | Status: {response.status_code}")
+        print(f"🚀 Sending to Telegram: {payload}")
+        response = requests.post(url, headers=headers, json=payload)
+        print(f"🛬 Response: {response.status_code} {response.text}")
+
         if response.status_code != 200:
             raise Exception(f"Telegram API Error: {response.status_code} - {response.text}")
+
+        print("✅ Message successfully sent!")
+
     except Exception as e:
-        print(f"❌ Error sending message: {e}")
+        print(f"❌ Failed to send message: {e}")
+        raise e  # Crash the thread if Telegram fails badly
 
 def clock_loop():
     print("🕒 Clock Loop Started Successfully...")
-    print(f"🔍 BOT_TOKEN starts with: {BOT_TOKEN[:10] if BOT_TOKEN else 'None'}")
-    print(f"🔍 CHAT_ID is: {CHAT_ID if CHAT_ID else 'None'}")
 
     while True:
-        try:
-            now = datetime.now()
-            timestamp = now.strftime("%H:%M:%S")
-            send_message(f"🟢 [{timestamp}] Clock Alert: I'm alive.")
-        except Exception as e:
-            print(f"❌ Error in clock loop: {e}")
+        now = datetime.now()
+        timestamp = now.strftime("%H:%M:%S")
+        send_message(f"🟢 [{timestamp}] Clock Alert: I'm alive.")
         time.sleep(10)
 
 @app.route("/")
