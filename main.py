@@ -7,38 +7,48 @@ import os
 
 app = Flask(__name__)
 
-def send_message(text):
-    # Reload env vars every time in case of updates
-    BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-    CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-    if not BOT_TOKEN or not CHAT_ID:
-        print("❌ Missing BOT_TOKEN or CHAT_ID.")
-        return
-
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    headers = {"Content-Type": "application/json"}
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": text
-    }
-
+def test_token_alive():
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/getMe"
     try:
-        print(f"🚀 Sending to Telegram: {payload}")
-        response = requests.post(url, headers=headers, json=payload)
-        print(f"🛬 Response: {response.status_code} {response.text}")
+        response = requests.get(url)
+        if response.status_code == 200:
+            print("✅ Token is alive.")
+        else:
+            print(f"⚠️ Token might be restricted. Status: {response.status_code} | Response: {response.text}")
+    except Exception as e:
+        print(f"❌ Token test failed: {e}")
 
+def send_message(text):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": text}
+    try:
+        response = requests.post(url, json=payload)
         if response.status_code != 200:
             raise Exception(f"Telegram API Error: {response.status_code} - {response.text}")
-
-        print("✅ Message successfully sent!")
-
+        print(f"✅ Clock Message sent | Status: {response.status_code}")
     except Exception as e:
-        print(f"❌ Failed to send message: {e}")
-        raise e  # Crash the thread if Telegram fails badly
+        print(f"❌ Clock Message failed: {e}")
+        time.sleep(30)
+        print("🔁 Retrying message...")
+        try:
+            response = requests.post(url, json=payload)
+            if response.status_code == 200:
+                print(f"✅ Retry success.")
+            else:
+                print(f"❌ Retry failed: {response.status_code} | {response.text}")
+        except Exception as e2:
+            print(f"❌ Second failure: {e2}")
 
 def clock_loop():
     print("🕒 Clock Loop Started Successfully...")
+    print(f"🔍 BOT_TOKEN starts with: {BOT_TOKEN[:10] if BOT_TOKEN else 'None'}")
+    print(f"🔍 CHAT_ID is: {CHAT_ID if CHAT_ID else 'None'}")
+
+    # Test the token first
+    test_token_alive()
 
     while True:
         now = datetime.now()
