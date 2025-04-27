@@ -13,11 +13,12 @@ CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 def send_message(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {"chat_id": CHAT_ID, "text": text}
+    print(f"🚀 Sending to Telegram: {payload}")  # << DEBUG LINE
     try:
         response = requests.post(url, json=payload)
-        print(f"✅ Clock Message sent | Status: {response.status_code}")
+        print(f"✅ Telegram response: {response.status_code} | {response.text}")  # << DEBUG LINE
     except Exception as e:
-        print(f"❌ Clock Message failed: {e}")
+        print(f"❌ Telegram send error: {e}")
 
 def clock_loop():
     print("🕒 Clock Loop Started Successfully...")
