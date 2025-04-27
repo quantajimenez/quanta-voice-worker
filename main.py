@@ -14,17 +14,13 @@ def send_message(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {"chat_id": CHAT_ID, "text": text}
     try:
-        print(f"🚀 Sending to Telegram: {payload}")
         response = requests.post(url, json=payload)
-        print(f"📩 Telegram API Response: {response.status_code} - {response.text}")
-
-        # 💥 Force an error if not OK (400, 401, 403, etc.)
-        if not response.ok:
-            raise Exception(f"Telegram API Error: {response.status_code} - {response.text}")
-
+        if response.status_code != 200:
+            print(f"❌ Telegram API error: {response.status_code} - {response.text}")
+        else:
+            print(f"✅ Clock Message sent | Status: {response.status_code}")
     except Exception as e:
         print(f"❌ Clock Message failed: {e}")
-        raise e  # 💥 Re-raise to crash the thread and show in Render logs
 
 def clock_loop():
     print("🕒 Clock Loop Started Successfully...")
