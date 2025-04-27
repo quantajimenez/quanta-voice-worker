@@ -15,12 +15,11 @@ def send_message(text):
     payload = {"chat_id": CHAT_ID, "text": text}
     try:
         response = requests.post(url, json=payload)
+        print(f"🚀 Sending to Telegram: {payload} | Status: {response.status_code}")
         if response.status_code != 200:
-            print(f"❌ Telegram API error: {response.status_code} - {response.text}")
-        else:
-            print(f"✅ Clock Message sent | Status: {response.status_code}")
+            raise Exception(f"Telegram API Error: {response.status_code} - {response.text}")
     except Exception as e:
-        print(f"❌ Clock Message failed: {e}")
+        print(f"❌ Error sending message: {e}")
 
 def clock_loop():
     print("🕒 Clock Loop Started Successfully...")
@@ -28,9 +27,12 @@ def clock_loop():
     print(f"🔍 CHAT_ID is: {CHAT_ID if CHAT_ID else 'None'}")
 
     while True:
-        now = datetime.now()
-        timestamp = now.strftime("%H:%M:%S")
-        send_message(f"🟢 [{timestamp}] Clock Alert: I'm alive.")
+        try:
+            now = datetime.now()
+            timestamp = now.strftime("%H:%M:%S")
+            send_message(f"🟢 [{timestamp}] Clock Alert: I'm alive.")
+        except Exception as e:
+            print(f"❌ Error in clock loop: {e}")
         time.sleep(10)
 
 @app.route("/")
