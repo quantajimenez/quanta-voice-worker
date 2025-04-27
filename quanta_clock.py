@@ -1,10 +1,10 @@
 import time
-from datetime import datetime
-import requests
 import os
+import requests
+from datetime import datetime
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+BOT_TOKEN = os.getenv("CLOCK_BOT_TOKEN")
+CHAT_ID = os.getenv("CLOCK_CHAT_ID")
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -16,12 +16,11 @@ def send_message(text):
         print(f"❌ Clock Message failed: {e}")
 
 def run_clock_alert():
-    print("🕒 Clock test triggered manually...")
-
-    # 🔍 DEBUG: Confirm env vars are pulled correctly
-    print(f"🔍 BOT_TOKEN starts with: {BOT_TOKEN[:10] if BOT_TOKEN else 'None'}")
-    print(f"🔍 CHAT_ID is: {CHAT_ID if CHAT_ID else 'None'}")
-
-    now = datetime.now()
-    timestamp = now.strftime("%H:%M:%S")
-    send_message(f"🟢 [{timestamp}] Clock Alert: Manual test successful!")
+    print("🕒 Clock loop started...")
+    
+    while True:
+        now = datetime.now()
+        timestamp = now.strftime("%H:%M:%S")
+        send_message(f"🕰️ Clock Tick: {timestamp}")
+        
+        time.sleep(10)  # wait 10 seconds before next tick
